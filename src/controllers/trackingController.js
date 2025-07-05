@@ -4,7 +4,7 @@ import { generateToken } from "../utils/generateToken.js";
 const prisma = new PrismaClient();
 
 const validateTrackingData = (data) => {
-  const requiredFields = ['trackingId', 'status'];
+  const requiredFields = ['status']; // trackingId is now auto-generated
   const errors = [];
   
   requiredFields.forEach(field => {
@@ -23,19 +23,22 @@ const validateTrackingData = (data) => {
 
 export const createTracking = async (req, res) => {
   try {
-    const { trackingId, status, origin, destination, currentLocation, notes, estimatedDelivery } = req.body;
+    const { status, origin, destination, currentLocation, notes, estimatedDelivery } = req.body;
     
     const errors = validateTrackingData(req.body);
     if (errors.length > 0) {
       return res.status(400).json({ errors });
     }
 
-    // Check for duplicate trackingId
+    // Generate trackingId automatically
+    const trackingId = generateToken();
+
+    // Check for duplicate trackingId (very unlikely, but good practice)
     const existingTracking = await prisma.tracking.findUnique({
       where: { trackingId }
     });
     if (existingTracking) {
-      return res.status(400).json({ error: "Tracking ID already exists" });
+      return res.status(400).json({ error: "Tracking ID already exists. Please try again." });
     }
 
     const tracking = await prisma.tracking.create({
@@ -50,7 +53,7 @@ export const createTracking = async (req, res) => {
       },
     });
     
-    return res.status(201).json({ tracking, token: generateToken() });
+    return res.status(201).json({ tracking });
   } catch (error) {
     console.error('Create tracking error:', error);
     return res.status(500).json({ error: "Internal server error" });

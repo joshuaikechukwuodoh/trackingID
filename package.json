@@ -5,8 +5,8 @@
   "type": "module",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1",
-    "dev": "nodemon server.js",
-    "build": "npx prisma generate",
+    "dev": "node api.js && nodemon server.js",
+    "build": "node api.js && npx prisma generate",
     "push": "npx prisma migrate dev --name init",
     "see": "npx prisma studio",
     "seed": "node prisma/seed.js",
