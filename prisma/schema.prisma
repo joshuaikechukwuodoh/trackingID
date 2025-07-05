@@ -1,0 +1,42 @@
+// This is your Prisma schema file,
+// learn more about it in the docs: https://pris.ly/d/prisma-schema
+
+// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
+// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
+
+generator client {
+  provider = "prisma-client-js"
+}
+
+datasource db {
+  provider = "postgresql"
+  url      = env("DATABASE_URL")
+}
+
+enum Status {
+  PENDING
+  IN_TRANSIT
+  DELIVERED
+}
+
+model Admin {
+  id Int @id @default(autoincrement())
+  name String @unique
+  email String @unique
+  password String
+}
+
+
+model Tracking {
+  id           Int      @id @default(autoincrement())
+  trackingId   String   @unique // Unique tracking ID (e.g., "TRK123456789")
+
+  status       String   @default("PENDING") // e.g., PENDING, IN_TRANSIT, DELIVERED
+  origin       String? // Starting location (e.g., "New York, NY")
+  destination  String? // Destination (e.g., "Los Angeles, CA")
+  currentLocation String? // Current location of the item
+  createdAt    DateTime @default(now()) // When tracking record was created
+  updatedAt    DateTime @updatedAt // Last updated timestamp
+  notes        String? // Optional notes (e.g., "Left at doorstep")
+  estimatedDelivery DateTime? // Optional estimated delivery date
+}
